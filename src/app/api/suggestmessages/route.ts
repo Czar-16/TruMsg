@@ -19,12 +19,13 @@ Keep them universal, positive, and non-personal.
 `;
 
     const result = streamText({
-      model: google("gemini-3.0-flash"),
+      model: google("gemini-2.5-flash"),
       prompt,
     });
 
     return result.toTextStreamResponse();
-  } catch (error: any) {
+  } 
+  catch (error: any) {
     return new Response(
       JSON.stringify({
         error: error?.message || "Something went wrong",
