@@ -8,13 +8,7 @@ const UsernameQuerySchema = z.object({
 });
 
 export async function GET(request: Request) {
-  // if(request.method!=="GET"){
-  //   return Response.json({
-  //     success: false,
-  //     message: "Method not allowed",
-
-  //   }, {status: 405})
-  // }
+ 
   await dbConnect();
   try {
     const { searchParams } = new URL(request.url);
@@ -23,8 +17,7 @@ export async function GET(request: Request) {
     };
     // validate with zod
     const result = UsernameQuerySchema.safeParse(queryParam);
-    console.log("Result is below"); // TODO: remove
-    console.log(result); // TODO: remove
+    
 
     if (!result.success) {
       const usernameErrors = result.error.format().username?._errors || [];
@@ -75,3 +68,4 @@ export async function GET(request: Request) {
     );
   }
 }
+
