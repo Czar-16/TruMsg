@@ -110,7 +110,7 @@ const SignInpage = () => {
                 <button
                   type="button"
                   onClick={() => router.replace("/sign-up")}
-                  className="text-blue-500 hover:text-blue-400"
+                  className="text-blue-500 hover:text-blue-400 cursor-pointer"
                 >
                   Sign up
                 </button>
