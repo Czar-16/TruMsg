@@ -1,21 +1,28 @@
 "use client";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
 import { signInSchema } from "@/schemas/signInSchema";
-import { ApiResponse } from "@/types/ApiResponse";
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios, { AxiosError } from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { signIn } from "next-auth/react";
 
 const SignInpage = () => {
   const router = useRouter();
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -25,20 +32,23 @@ const SignInpage = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
-    try {
-      const response = await axios.post("/api/sign-in", data);
-      toast.success(response.data.message);
+    const result = await signIn("credentials", {
+      identifier: data.username, // ✅ important fix
+      password: data.password,
+      redirect: false,
+    });
+
+    if (result?.ok) {
+      toast.success("Login successful");
       router.replace("/dashboard");
-    } catch (error) {
-      const axiosError = error as AxiosError<ApiResponse>;
-      const message = axiosError.response?.data.message;
-      toast.error(message ?? "Sign in failed");
+    } else {
+      toast.error(result?.error || "Sign in failed");
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-black">
-      <div className="w-full max-w-md p-8 space-y-8 bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800">
+      <div className="w-full max-w-md p-8 space-y-8 bg-black rounded-2xl shadow-xl border border-zinc-800">
         <div className="text-center">
           <h1 className="text-5xl font-extrabold mb-6 text-white">
             Welcome to TruMsg 🗨️
@@ -50,7 +60,6 @@ const SignInpage = () => {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Username */}
             <FormField
               control={form.control}
               name="username"
@@ -74,6 +83,7 @@ const SignInpage = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="password"
@@ -98,12 +108,14 @@ const SignInpage = () => {
                 </FormItem>
               )}
             />
+
             <Button
               type="submit"
               className="w-full bg-blue-700 text-white hover:bg-blue-800"
             >
               Sign in
             </Button>
+
             <div className="text-center">
               <p className="text-zinc-400">
                 Don't have an account?{" "}

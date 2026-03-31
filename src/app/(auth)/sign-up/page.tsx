@@ -25,6 +25,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 const SignUppage = () => {
   const [username, setUsername] = useState("");
@@ -58,7 +59,7 @@ const SignUppage = () => {
           `/api/check-username-unique?username=${username}`,
         );
 
-        setUsernameMessage(response.data.message);
+       setUsernameMessage(response.data.message ?? "");
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
 
@@ -96,7 +97,8 @@ const SignUppage = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-black">
-      <div className="w-full max-w-md p-8 space-y-8 bg-zinc-900 rounded-2xl shadow-xl border border-zinc-800">
+      <div className="relative w-full max-w-md p-8 space-y-8 bg-black rounded-2xl shadow-xl border border-zinc-800">
+       
         <div className="text-center">
           <h1 className="text-5xl font-extrabold mb-6 text-white">
             Welcome to TruMsg 🗨️
@@ -227,13 +229,14 @@ const SignUppage = () => {
 
             <div className="text-center">
               <p className="text-zinc-400">
-                Already have an account?{" "}
-                <Link
-                  href="/sign-in"
-                  className="text-blue-500 hover:text-blue-400 "
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => router.replace("/sign-in")}
+                  className="text-blue-500 hover:text-blue-400 cursor-pointer"
                 >
-                  Login
-                </Link>
+                  Sign in
+                </button>
               </p>
             </div>
           </form>

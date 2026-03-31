@@ -1,8 +1,7 @@
-import { streamText } from "ai";
+import { generateText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
 export const runtime = "edge";
-
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY!,
@@ -14,22 +13,27 @@ export async function POST() {
 Create a list of three open-ended and engaging questions formatted as a single string.
 Each question must be separated by '||'.
 
-These questions are for an anonymous social messaging platform.
-Keep them universal, positive, and non-personal.
+Return ONLY plain text. No markdown, no HTML.
+
+Example:
+What motivates you daily? || What makes you happy? || What inspires you?
 `;
 
-    const result = streamText({
+    const result = await generateText({
       model: google("gemini-2.5-flash"),
       prompt,
     });
 
-    return result.toTextStreamResponse();
-  } 
-  catch (error: any) {
-    return new Response(
-      JSON.stringify({
+    return Response.json({
+      message: result.text,
+    });
+  } catch (error: any) {
+    console.log("AI ERROR:", error); // 👈 IMPORTANT
+
+    return Response.json(
+      {
         error: error?.message || "Something went wrong",
-      }),
+      },
       { status: 500 },
     );
   }

@@ -1,58 +1,68 @@
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
-
-import {Message} from "@/model/User"
-import { success } from "zod";
-
-export async function POST(request: Request){
+export async function POST(request: Request) {
   await dbConnect();
 
-  const {username, content} = await request.json()
+  const { username, content } = await request.json();
+
+  if (!content || content.trim() === "") {
+    return Response.json(
+      {
+        success: false,
+        message: "Message cannot be empty",
+      },
+      { status: 400 },
+    );
+  }
 
   try {
-    const user = await UserModel.findOne({username})
-    if(!user){
-      return Response.json({
-        success: false,
-        messgae : "User not found"
-      },
-    {
-      status: 404
-    })
-    }
-    // is user accepting the messages
-    if(!user.isAcceptingMessage){
+    const user = await UserModel.findOne({ username });
+
+    if (!user) {
       return Response.json(
         {
           success: false,
-          messgae: "User is not accepting the messages",
+          message: "User not found",
+        },
+        { status: 404 },
+      );
+    }
+
+    if (!user.isAcceptingMessage) {
+      return Response.json(
+        {
+          success: false,
+          message: "User is not accepting messages",
         },
         { status: 403 },
       );
     }
-    const newMessage = {content, createdAt: new Date()}
-    user.messages.push(newMessage as Message)
-    await user.save()
+
+    const newMessage = {
+      content,
+      createdAt: new Date(),
+    };
+
+    user.messages.push(newMessage as any);
+    await user.save();
 
     return Response.json(
       {
         success: true,
-        messgae: "message send successfully ",
+        message: "Message sent successfully 🚀",
       },
-      { status: 401 },
+      { status: 200 },
     );
-
   } catch (error) {
-    console.log("Error adding messages", error)
+    console.log(error);
+
     return Response.json(
       {
         success: false,
-        messgae: "Internal server error ",
+        message: "Internal server error",
       },
       { status: 500 },
     );
-    
   }
-
 }

@@ -1,23 +1,22 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-import bcrypt from "bcryptjs"; // password compare
+import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
 export const authOptions: NextAuthOptions = {
-  providers: [ // user kis method se login karega.
+  providers: [
     CredentialsProvider({
-      // crendientials is used to generate a form on the sign in page.
-      id: "credentials",
       name: "credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        identifier: { label: "Email or Username", type: "text" },
         password: { label: "Password", type: "password" },
       },
 
-      async authorize(credentials: any): Promise<any> { // authorize function : tab run hoga jab user sign in karega.
+      async authorize(credentials: any): Promise<any> {
         await dbConnect();
+
         try {
           const user = await UserModel.findOne({
             $or: [
@@ -25,9 +24,11 @@ export const authOptions: NextAuthOptions = {
               { username: credentials.identifier },
             ],
           });
+
           if (!user) {
-            throw new Error("No user found with this email");
+            throw new Error("No user found with this email/username");
           }
+
           if (!user.isVerified) {
             throw new Error("Please verify your account before login");
           }
@@ -37,43 +38,47 @@ export const authOptions: NextAuthOptions = {
             user.password,
           );
 
-          if (isPasswordCorrect) {
-            return user;
-          } else {
+          if (!isPasswordCorrect) {
             throw new Error("Incorrect password");
           }
+
+          return user;
         } catch (err: any) {
-          throw new Error(err);
+          throw new Error(err.message || "Login failed");
         }
       },
     }),
   ],
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token._id = user._id?.toString();
         token.isVerified = user.isVerified;
-        token.isAcceptingMessages = user.isAcceptingMessage;
+        token.isAcceptingMessage = user.isAcceptingMessage; // ✅ fixed name
         token.username = user.username;
       }
       return token;
     },
+
     async session({ session, token }) {
       if (token) {
-        session.user._id = token._id;
-        session.user.isVerified = token.isVerified;
-        session.user.isAcceptingMessage = token.isAcceptingMessage;
-        session.user.username = token.username;
+        session.user._id = token._id as string;
+        session.user.isVerified = token.isVerified as boolean;
+        session.user.isAcceptingMessage = token.isAcceptingMessage as boolean;
+        session.user.username = token.username as string;
       }
-
       return session;
     },
   },
+
   pages: {
     signIn: "/sign-in",
   },
+
   session: {
     strategy: "jwt",
   },
+
   secret: process.env.NEXTAUTH_SECRET,
 };
