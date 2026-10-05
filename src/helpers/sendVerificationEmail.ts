@@ -6,7 +6,7 @@ export async function sendVerificationEmail(
   email: string,
   username: string,
   verifyCode: string, //otp
-): Promise<ApiResponse> {
+): Promise<Omit<ApiResponse, "isAcceptingMessage">> {
   try {
     await resend.emails.send({
       from: "TruMsg <onboarding@resend.dev>", 

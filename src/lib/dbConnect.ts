@@ -8,7 +8,7 @@ type ConnectionObject = {
 // 0 → disconnected
 // 1 → connected
 // 2 → connecting
-console.log(process.env.MONGODB_URI);
+
 
 const connection: ConnectionObject = {};
 
