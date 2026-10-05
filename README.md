@@ -16,6 +16,24 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 This repository serves as a starter template for building scalable, type‑safe, full‑stack applications with Next.js.
 
+## Screenshots
+
+### Home
+
+![Trumsg home page](public/screenshots/Home.png)
+
+### Email Verification
+
+![Trumsg email verification page](public/screenshots/emailVerify.png)
+
+### Dashboard
+
+![Trumsg dashboard](public/screenshots/dashboard.png)
+
+### Send a Message
+
+![Trumsg message submission page](public/screenshots/sendmessage.png)
+
 ## Tech Stack
 
 - **Framework:** Next.js (App Router) with React 18
